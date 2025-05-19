@@ -7,13 +7,13 @@ import { studentApi } from '@/lib/api/students';
 import { Student } from '@/types/student';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell
 } from '@/components/ui/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Edit, Trash2, Plus, Search, UserPlus } from 'lucide-react';
@@ -29,18 +29,18 @@ export default function StudentsPage() {
 
   const fetchStudents = async () => {
     if (!token) return;
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
       const response = await studentApi.getAll(token);
-      
+
       if (response.error) {
         setError(response.error);
         return;
       }
-      
+
       if (response.data) {
         setStudents(response.data);
         setFilteredStudents(response.data);
@@ -70,24 +70,6 @@ export default function StudentsPage() {
     }
   }, [searchTerm, students]);
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      try {
-        const response = await studentApi.delete(id, token!);
-        
-        if (response.error) {
-          alert(`Error: ${response.error}`);
-          return;
-        }
-        
-        // Refresh the students list
-        fetchStudents();
-      } catch (err) {
-        console.error('Failed to delete student:', err);
-        alert('Failed to delete the student');
-      }
-    }
-  };
 
   // Helper function to render semester
   const getSemesterLabel = (semester: number) => {
@@ -159,14 +141,6 @@ export default function StudentsPage() {
                           onClick={() => router.push(`/admin/students/${student._id}/edit`)}
                         >
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500"
-                          onClick={() => handleDelete(student._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

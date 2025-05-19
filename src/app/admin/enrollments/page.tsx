@@ -7,13 +7,13 @@ import { enrollmentApi } from '@/lib/api/enrollments';
 import { Enrollment } from '@/types/enrollment';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell
 } from '@/components/ui/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Trash2, Plus, Search, CheckCircle, XCircle } from 'lucide-react';
@@ -30,18 +30,18 @@ export default function EnrollmentsPage() {
 
   const fetchEnrollments = async () => {
     if (!token) return;
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
       const response = await enrollmentApi.getAll(token);
-      
+
       if (response.error) {
         setError(response.error);
         return;
       }
-      
+
       if (response.data) {
         setEnrollments(response.data);
         setFilteredEnrollments(response.data);
@@ -63,20 +63,20 @@ export default function EnrollmentsPage() {
       setFilteredEnrollments(enrollments);
       return;
     }
-    
+
     const searchTermLower = searchTerm.toLowerCase();
     const filtered = enrollments.filter((enrollment) => {
-      const studentName = typeof enrollment.student === 'object' 
-        ? enrollment.student.fullName.toLowerCase() 
+      const studentName = typeof enrollment.student === 'object'
+        ? "TT"
         : '';
-      
-      const courseName = typeof enrollment.course === 'object' 
-        ? enrollment.course.name.toLowerCase() 
+
+      const courseName = typeof enrollment.course === 'object'
+        ? enrollment.course.name.toLowerCase()
         : '';
-      
+
       return studentName.includes(searchTermLower) || courseName.includes(searchTermLower);
     });
-    
+
     setFilteredEnrollments(filtered);
   }, [searchTerm, enrollments]);
 
@@ -84,12 +84,12 @@ export default function EnrollmentsPage() {
     if (window.confirm('Are you sure you want to delete this enrollment?')) {
       try {
         const response = await enrollmentApi.delete(id, token!);
-        
+
         if (response.error) {
           alert(`Error: ${response.error}`);
           return;
         }
-        
+
         // Refresh the enrollments list
         fetchEnrollments();
       } catch (err) {
@@ -102,16 +102,16 @@ export default function EnrollmentsPage() {
   const handleUpdateStatus = async (id: string, isActive: boolean) => {
     try {
       const response = await enrollmentApi.update(
-        id, 
-        { isActive: !isActive }, 
+        id,
+        { isActive: !isActive },
         token!
       );
-      
+
       if (response.error) {
         alert(`Error: ${response.error}`);
         return;
       }
-      
+
       // Refresh the enrollments list
       fetchEnrollments();
     } catch (err) {
@@ -171,13 +171,13 @@ export default function EnrollmentsPage() {
                 {filteredEnrollments.map((enrollment) => (
                   <TableRow key={enrollment._id}>
                     <TableCell className="font-medium">
-                      {typeof enrollment.student === 'object' 
-                        ? enrollment.student.fullName 
+                      {typeof enrollment.student === 'object'
+                        ? (enrollment.student?.fullName ? enrollment.student.fullName : enrollment._id)
                         : 'Unknown Student'}
                     </TableCell>
                     <TableCell>
-                      {typeof enrollment.course === 'object' 
-                        ? enrollment.course.name 
+                      {typeof enrollment.course === 'object'
+                        ? enrollment.course.name
                         : 'Unknown Course'}
                     </TableCell>
                     <TableCell>
