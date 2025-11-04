@@ -400,7 +400,7 @@ class EnhancedResumableUploader {
       }
     }
 
-    throw new Error(`Failed to upload chunk ${chunkIndex} after ${maxRetries + 1} attempts: ${lastError.message}`);
+    throw new Error(`Failed to upload chunk ${chunkIndex} after ${maxRetries + 1} attempts`);
   }
 
   // Upload single chunk
@@ -546,7 +546,7 @@ export const videoApi = {
     }
 
     return uploadOptions.onProgress
-      ? uploadFileWithProgress('videos', formData, token, uploadOptions.onProgress)
+      ? uploadFileWithProgress('videos', formData, token, (progress: number) => uploadOptions.onProgress?.(progress, 0, 0))
       : uploadFile('videos', formData, token);
   },
 
