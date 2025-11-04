@@ -1,7 +1,10 @@
 import { apiClient } from '../utils/api-client';
-import { LoginDto, AuthResponse } from '@/types/auth';
+import { TeacherLoginDto, StudentLoginDto, TeacherAuthResponse, StudentAuthResponse } from '@/types/auth';
 
 export const authApi = {
-  login: (credentials: LoginDto) => 
-    apiClient.post<AuthResponse>('auth/login', credentials),
+  teacherLogin: (credentials: TeacherLoginDto) =>
+    apiClient.post<TeacherAuthResponse>('auth/teacher/login', credentials),
+
+  studentLogin: (credentials: StudentLoginDto) =>
+    apiClient.post<StudentAuthResponse>('auth/login', credentials),
 };

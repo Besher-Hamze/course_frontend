@@ -32,14 +32,14 @@ export function VideoForm({ courseId, initialData, onSave, onCancel }: VideoForm
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    
+
     if (name === 'duration') {
       const numValue = value === '' ? undefined : Number(value);
       setFormData((prev) => ({ ...prev, [name]: numValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    
+
     setErrors((prev) => ({ ...prev, [name]: '' }));
     setFormError('');
   };
@@ -53,43 +53,43 @@ export function VideoForm({ courseId, initialData, onSave, onCancel }: VideoForm
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.title) {
       newErrors.title = 'Title is required';
     }
-    
+
     // File is required for new videos
     if (!initialData && !formData.file) {
       newErrors.file = 'Video file is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm() || !token) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       let response;
-      
+
       if (initialData) {
         response = await videoApi.update(initialData._id, formData, token);
       } else {
         response = await videoApi.create(formData, token);
       }
-      
+
       if (response?.error) {
         setFormError(response.error);
         return;
       }
-      
+
       onSave();
     } catch (error) {
       setFormError('An error occurred. Please try again.');
@@ -106,7 +106,7 @@ export function VideoForm({ courseId, initialData, onSave, onCancel }: VideoForm
           {formError}
         </div>
       )}
-      
+
       <div className="space-y-2">
         <label htmlFor="title" className="text-sm font-medium">
           Video Title
@@ -120,7 +120,7 @@ export function VideoForm({ courseId, initialData, onSave, onCancel }: VideoForm
           placeholder="Enter video title"
         />
       </div>
-      
+
       <div className="space-y-2">
         <label htmlFor="description" className="text-sm font-medium">
           Description (Optional)
@@ -134,39 +134,9 @@ export function VideoForm({ courseId, initialData, onSave, onCancel }: VideoForm
           className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px]"
         />
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label htmlFor="duration" className="text-sm font-medium">
-            Duration (in seconds, optional)
-          </label>
-          <Input
-            id="duration"
-            name="duration"
-            type="number"
-            value={formData.duration?.toString() || ''}
-            onChange={handleChange}
-            error={errors.duration}
-            placeholder="Enter video duration"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <label htmlFor="order" className="text-sm font-medium">
-            Order (optional)
-          </label>
-          <Input
-            id="order"
-            name="order"
-            type="number"
-            value={formData.order?.toString() || ''}
-            onChange={handleChange}
-            error={errors.order}
-            placeholder="Enter display order"
-          />
-        </div>
-      </div>
-      
+
+
+
       <div className="space-y-2">
         <label htmlFor="file" className="text-sm font-medium">
           {initialData ? 'Replace Video (Optional)' : 'Video File'}
@@ -185,7 +155,7 @@ export function VideoForm({ courseId, initialData, onSave, onCancel }: VideoForm
           </p>
         )}
       </div>
-      
+
       <div className="flex justify-end space-x-2 pt-4">
         <Button
           type="button"

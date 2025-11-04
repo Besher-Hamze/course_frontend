@@ -3,24 +3,34 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/utils/api-client';
-import { Student } from '@/types/student';
-import { LoginDto, AuthResponse } from '@/types/auth';
+import { authApi } from '@/lib/api/auth';
+import { TeacherLoginDto, Role } from '@/types/auth';
+
+interface CurrentUser {
+  _id: string;
+  username: string;
+  fullName: string;
+  isActive: boolean;
+  isOwner: boolean;
+  role: Role;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface AuthContextType {
-  user: Student | null;
   token: string | null;
+  user: CurrentUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: LoginDto) => Promise<boolean>;
+  login: (data: TeacherLoginDto) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<Student | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -29,38 +39,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === 'undefined') return;
 
     const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (storedToken && storedUser) {
+    if (storedToken) {
       setToken(storedToken);
+    }
+
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to parse stored user data', error);
-        logout();
+      } catch {
+        // Invalid user - clear it
+        localStorage.removeItem('user');
       }
     }
 
     setIsLoading(false);
   }, []);
 
-  const login = async (credentials: LoginDto): Promise<boolean> => {
+  const login = async (credentials: TeacherLoginDto): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post<AuthResponse>('auth/admin/login', credentials);
+      const response = await authApi.teacherLogin(credentials);
 
       if (response.error || !response.data) {
         setIsLoading(false);
         return false;
       }
 
-      const { accessToken } = response.data;
+      const { accessToken, teacher } = response.data;
 
       // Store in state
       setToken(accessToken);
+      setUser(teacher as unknown as CurrentUser);
 
       // Store in localStorage
       localStorage.setItem('token', accessToken);
+      localStorage.setItem('user', JSON.stringify(teacher));
 
       setIsLoading(false);
       return true;
@@ -72,15 +86,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    setUser(null);
     setToken(null);
+    setUser(null);
     localStorage.removeItem('token');
-    router.push('/auth/login');
+    localStorage.removeItem('user');
+    // Try Next.js navigation first
+    try {
+      router.replace('/auth/login');
+    } catch { }
+    // Ensure redirect even if router is not ready
+    if (typeof window !== 'undefined') {
+      window.location.replace('/auth/login');
+    }
   };
 
   const value = {
-    user,
     token,
+    user,
     isLoading,
     isAuthenticated: !!token,
     login,

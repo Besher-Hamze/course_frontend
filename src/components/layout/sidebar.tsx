@@ -4,13 +4,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
-import { 
-  BookOpen, 
-  Users, 
-  FileText, 
-  Video, 
-  UserPlus, 
+import {
+  BookOpen,
+  Users,
+  FileText,
+  Video,
+  UserPlus,
   LayoutDashboard,
+  UserCog,
   Menu,
   X
 } from 'lucide-react';
@@ -25,6 +26,11 @@ const navItems = [
     title: 'Courses',
     href: '/admin/courses',
     icon: BookOpen,
+  },
+  {
+    title: 'Teachers',
+    href: '/admin/teachers',
+    icon: UserCog,
   },
   {
     title: 'Students',

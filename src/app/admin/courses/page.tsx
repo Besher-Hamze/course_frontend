@@ -5,16 +5,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { courseApi } from '@/lib/api/courses';
-import { Course } from '@/types/course';
+import { Course, CourseWithEnrollmentCount } from '@/types/course';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell
 } from '@/components/ui/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Edit, Trash2, Plus, Search, Eye, Video, FileText } from 'lucide-react';
@@ -22,26 +22,27 @@ import { Edit, Trash2, Plus, Search, Eye, Video, FileText } from 'lucide-react';
 export default function CoursesPage() {
   const router = useRouter();
   const { token } = useAuth();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<(Course | CourseWithEnrollmentCount)[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<(Course | CourseWithEnrollmentCount)[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   const fetchCourses = async () => {
     if (!token) return;
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
-      const response = await courseApi.getAll(token);
-      
+      // Prefer teacher-specific endpoint; fallback to getAll for owner compatibility
+      const response = await courseApi.getMineWithCounts(token);
+
       if (response.error) {
         setError(response.error);
         return;
       }
-      
+
       if (response.data) {
         setCourses(response.data);
         setFilteredCourses(response.data);
@@ -75,12 +76,12 @@ export default function CoursesPage() {
     if (window.confirm('Are you sure you want to delete this course?')) {
       try {
         const response = await courseApi.delete(id, token!);
-        
+
         if (response.error) {
           alert(`Error: ${response.error}`);
           return;
         }
-        
+
         // Refresh the courses list
         fetchCourses();
       } catch (err) {
@@ -139,6 +140,7 @@ export default function CoursesPage() {
                   <TableHead>Major</TableHead>
                   <TableHead>Year Level</TableHead>
                   <TableHead>Semester</TableHead>
+                  <TableHead>Enrollments</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -149,6 +151,7 @@ export default function CoursesPage() {
                     <TableCell>{course.major}</TableCell>
                     <TableCell>Year {course.yearLevel}</TableCell>
                     <TableCell>{getSemesterLabel(course.semester)}</TableCell>
+                    <TableCell>{(course as CourseWithEnrollmentCount).enrollments ?? '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center space-x-2">
                         <Button

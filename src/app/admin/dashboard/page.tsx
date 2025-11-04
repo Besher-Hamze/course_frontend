@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { StatsCard } from '@/components/dashboard/stats-card';
-import { RecentActivity } from '@/components/dashboard/recent-activity';
-import { Users, BookOpen, UserPlus,FileText } from 'lucide-react';
+import { Users, BookOpen, UserPlus, FileText } from 'lucide-react';
 import { courseApi } from '@/lib/api/courses';
 import { studentApi } from '@/lib/api/students';
 import { enrollmentApi } from '@/lib/api/enrollments';
@@ -27,51 +26,14 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock recent activity data
-  const recentActivities = [
-    {
-      id: '1',
-      action: 'Created',
-      entity: 'New Course: Introduction to Programming',
-      user: 'Admin',
-      time: '2 hours ago',
-    },
-    {
-      id: '2',
-      action: 'Enrolled',
-      entity: 'Student: Ahmed Mohamed in Data Structures',
-      user: 'Admin',
-      time: '3 hours ago',
-    },
-    {
-      id: '3',
-      action: 'Uploaded',
-      entity: 'Video: Lecture 5 for Database Systems',
-      user: 'Admin',
-      time: '5 hours ago',
-    },
-    {
-      id: '4',
-      action: 'Added',
-      entity: 'File: Project Guidelines for Software Engineering',
-      user: 'Admin',
-      time: 'Yesterday',
-    },
-    {
-      id: '5',
-      action: 'Registered',
-      entity: 'New Student: Sara Ahmed',
-      user: 'Admin',
-      time: 'Yesterday',
-    },
-  ];
+  // Recent activity hidden until backend provides real data
 
   useEffect(() => {
     const fetchStats = async () => {
       if (!token) return;
-      
+
       setIsLoading(true);
-      
+
       try {
         const [
           coursesResponse,
@@ -141,9 +103,7 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="mt-8">
-            <RecentActivity activities={recentActivities} />
-          </div>
+          {/* Recent activity temporarily removed */}
         </>
       )}
     </div>

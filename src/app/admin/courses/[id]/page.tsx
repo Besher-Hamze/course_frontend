@@ -9,7 +9,7 @@ import { Enrollment } from '@/types/enrollment';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { ArrowLeft, Edit, Video, FileText, Users } from 'lucide-react';
+import { ArrowLeft, Edit, Video, FileText, Users, Key } from 'lucide-react';
 
 export default function CourseDetailsPage() {
   const params = useParams();
@@ -24,25 +24,25 @@ export default function CourseDetailsPage() {
   useEffect(() => {
     const fetchCourseData = async () => {
       if (!token || !courseId) return;
-      
+
       setIsLoading(true);
       setError('');
-      
+
       try {
         const [courseResponse, enrollmentsResponse] = await Promise.all([
           courseApi.getById(courseId, token),
           enrollmentApi.getByCourse(courseId, token),
         ]);
-        
+
         if (courseResponse.error) {
           setError(courseResponse.error);
           return;
         }
-        
+
         if (courseResponse.data) {
           setCourse(courseResponse.data);
         }
-        
+
         if (enrollmentsResponse.data) {
           setEnrollments(enrollmentsResponse.data);
         }
@@ -111,31 +111,38 @@ export default function CourseDetailsPage() {
                 <p>{getSemesterLabel(course.semester)}</p>
               </div>
             </div>
-            
+
             <div>
               <p className="text-sm font-medium text-gray-500">Description</p>
               <p className="mt-1">{course.description || 'No description provided.'}</p>
             </div>
           </CardContent>
           <CardFooter>
-            <div className="flex space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => router.push(`/admin/courses/${course._id}/edit`)}
               >
                 <Edit className="h-4 w-4 mr-2" /> Edit Course
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/admin/courses/${course._id}/codes`)}
+              >
+                <Key className="h-4 w-4 mr-2" /> Manage Codes
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => router.push(`/admin/courses/${course._id}/videos`)}
               >
                 <Video className="h-4 w-4 mr-2" /> Manage Videos
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => router.push(`/admin/courses/${course._id}/files`)}
               >
                 <FileText className="h-4 w-4 mr-2" /> Manage Files
@@ -165,8 +172,8 @@ export default function CourseDetailsPage() {
                   {enrollments.map((enrollment) => (
                     <TableRow key={enrollment._id}>
                       <TableCell>
-                        {typeof enrollment.student === 'object' 
-                          ? enrollment.student.fullName 
+                        {typeof enrollment.student === 'object'
+                          ? enrollment.student.fullName
                           : 'Unknown Student'}
                       </TableCell>
                       <TableCell>
@@ -181,9 +188,9 @@ export default function CourseDetailsPage() {
             )}
           </CardContent>
           <CardFooter>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="w-full"
               onClick={() => router.push('/admin/enrollments/create')}
             >
